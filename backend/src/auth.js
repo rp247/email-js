@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
 var bcrypt = require('bcrypt');
 
-// const secrets = require('../data/secrets');
-// var users = require('../data/users.json');
+const db = require('./db')
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
     console.log("Login: User: ", email, ". Pwd: ", password);
+    const user = db.login(email, 'hash');
     res.status(401).send('Invalid credentials');
 };
 

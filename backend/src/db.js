@@ -8,6 +8,10 @@ const pool = new Pool({
   password: process.env.POSTGRES_PASSWORD,
 });
 
+exports.login = async (email, hash) => {
+    console.log("login database check");
+}
+
 exports.selectMails = async (mailbox) => {
     console.log("selectMails");
 };
