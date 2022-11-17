@@ -1,9 +1,3 @@
---
--- All SQL statements must be on a single line and end in a semicolon.
---
-
--- Dummy table --
-DROP TABLE IF EXISTS dummy;
-CREATE TABLE dummy(created TIMESTAMP WITH TIME ZONE);
-
--- Your database schema goes here --
+-- User: email, name, pwd hash
+DROP TABLE IF EXISTS mail;
+CREATE TABLE user(email CITEXT PRIMARY KEY, pname VARCHAR(20), hash VARCHAR(256));
