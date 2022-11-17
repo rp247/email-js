@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 
-// https://github.com/mui/material-ui/blob/v5.10.14/docs/
+// creds: https://github.com/mui/material-ui/blob/v5.10.14/docs/
 // data/material/getting-started/templates/sign-in/SignIn.js
 
 /**
@@ -49,7 +49,14 @@ function Login() {
       headers: {
         'Content-Type': 'application/json',
       },
-    });
+    })
+      .then((res) => {
+        if (!res.ok) throw res;
+        return res.json();
+      })
+      .catch((err) => {
+        alert('Error logging in, please try again');
+      });
   };
 
   return (
@@ -71,7 +78,7 @@ function Login() {
                     Login
           </Typography>
           {/* Email password sign in*/}
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{mt: 1}}>
+          <Box component="form" onSubmit={handleSubmit} sx={{mt: 1}}>
             <TextField
               margin="normal"
               required
@@ -80,6 +87,7 @@ function Login() {
               label="Email Address"
               name="email"
               autoComplete="email"
+              type="email"
               autoFocus
             />
             <TextField

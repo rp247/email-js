@@ -7,6 +7,7 @@ var bcrypt = require('bcrypt');
 exports.login = async (req, res) => {
     const { email, password } = req.body;
     console.log("Login: User: ", email, ". Pwd: ", password);
+    res.status(401).send('Invalid credentials');
 };
 
 exports.check = (req, res, next) => {
