@@ -9,7 +9,7 @@ const pool = new Pool({
 });
 
 exports.login = async (email, hash) => {
-    console.log("login database check");
+    console.log("login database check email", email, ". hash: ", hash);
 }
 
 exports.selectMails = async (mailbox) => {

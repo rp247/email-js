@@ -6,7 +6,7 @@ const db = require('./db')
 exports.login = async (req, res) => {
     const { email, password } = req.body;
     console.log("Login: User: ", email, ". Pwd: ", password);
-    const user = db.login(email, 'hash');
+    const user = db.login(email, process.env.SECRET);
     res.status(401).send('Invalid credentials');
 };
 
