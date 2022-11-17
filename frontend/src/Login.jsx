@@ -42,11 +42,13 @@ const theme = createTheme();
 function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log('"SIGN IN PRESS"');
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+    console.log('SIGN IN PRESS');
+    fetch('http://localhost:3010/v0/login', {
+      method: 'POST',
+      body: '{"email": "NLUH", "password": "uhh"}',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
   };
 

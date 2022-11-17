@@ -13,39 +13,84 @@ servers:
   - url: http://localhost:3010/v0
 
 paths:
-  /dummy:
-    get:
-      description: Dummy Endpoint
+  /login:
+    post:
+      description: Login
+      requestBody:
+        description: Request Body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
       responses:
         200:
-          description: Succesful
+          description: Emails Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DummyResponse'
+                $ref: '#/components/schemas/User'
         default:
-          description: unexpected error
+          description: Unexpected Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/UnexpectedError'
+    
+  /mail:
+    get:
+      security:
+        - bearerAuth: []         
+      description: Returns all emails
+      responses:
+        401:
+          description: Unauthorised
+        200:
+          description: Email Response
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnexpectedError'
 
 components:
   schemas:
-    Error:
+    UnexpectedError:
+      required:
+        - code
+        - message
       properties:
         code:
           type: integer
           format: int32
         message:
           type: string
-      required:
-        - code
-        - message
 
-    DummyResponse:
+    User:
+      type: object
       properties:
-        message:
+        name:
+          type: string
+        accessToken:
           type: string
       required:
-        - message
+        - name
+        - accessToken
+
+    Credentials:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
