@@ -10,6 +10,9 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 
+// https://github.com/mui/material-ui/blob/v5.10.14/docs/
+// data/material/getting-started/templates/sign-in/SignIn.js
+
 /**
  * Copyright Info
  * @param {props} props

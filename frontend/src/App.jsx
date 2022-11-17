@@ -1,6 +1,8 @@
 import React from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import Login from './components/Login';
+import Login from './Login';
+import Home from './Home';
 
 /**
  * Simple component with no state.
@@ -9,9 +11,12 @@ import Login from './components/Login';
  */
 function App() {
   return (
-    <div>
-      <Login />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" exact element={<Home />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
