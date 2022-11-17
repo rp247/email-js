@@ -1,7 +1,6 @@
 import React from 'react';
 
-import Dummy from './components/Dummy';
-import Emoji from './components/Emoji';
+import Login from './components/Login';
 
 /**
  * Simple component with no state.
@@ -11,8 +10,7 @@ import Emoji from './components/Emoji';
 function App() {
   return (
     <div>
-      <Dummy />
-      <Emoji />
+      <Login />
     </div>
   );
 }
