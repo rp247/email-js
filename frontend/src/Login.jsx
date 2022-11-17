@@ -9,6 +9,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
+import {useNavigate} from 'react-router-dom';
 
 // creds: https://github.com/mui/material-ui/blob/v5.10.14/docs/
 // data/material/getting-started/templates/sign-in/SignIn.js
@@ -40,12 +41,21 @@ const theme = createTheme();
  * @return {object} JSX
  */
 function Login() {
+  const [user, setUser] = React.useState({email: '', password: ''});
+  const history = useNavigate();
+
+  const handleInputChange = (event) => {
+    const {value, name} = event.target;
+    const u = user;
+    u[name] = value;
+    setUser(u);
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log('SIGN IN PRESS');
     fetch('http://localhost:3010/v0/login', {
       method: 'POST',
-      body: '{"email": "NLUH", "password": "uhh"}',
+      body: JSON.stringify(user),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -53,6 +63,10 @@ function Login() {
       .then((res) => {
         if (!res.ok) throw res;
         return res.json();
+      })
+      .then((json) => {
+        sessionStorage.setItem('user', JSON.stringify(json));
+        history('/');
       })
       .catch((err) => {
         alert('Error logging in, please try again');
@@ -88,6 +102,7 @@ function Login() {
               name="email"
               autoComplete="email"
               type="email"
+              onChange={handleInputChange}
               autoFocus
             />
             <TextField
@@ -99,6 +114,7 @@ function Login() {
               type="password"
               id="password"
               autoComplete="current-password"
+              onChange={handleInputChange}
             />
             {/* Sign in Button*/}
             <Button
