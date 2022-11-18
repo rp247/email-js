@@ -10,6 +10,14 @@ const pool = new Pool({
 
 exports.login = async (email, hash) => {
     console.log("login database check email", email, ". hash: ", hash);
+    const select = 'SELECT hash FROM people WHERE email = $1';
+    const query = {
+      text: select,
+      values: [email],
+    };
+    const {rows} = await pool.query(query);
+    console.log("Rows ", rows[0]);
+    return rows.length == 1 ? rows[0].email : undefined;
 }
 
 exports.selectMails = async (mailbox) => {
