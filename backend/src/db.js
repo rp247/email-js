@@ -10,14 +10,14 @@ const pool = new Pool({
 });
 
 exports.login = async (email, pwd) => {
-    const select = 'SELECT email, hash FROM people WHERE email = $1';
+    const select = 'SELECT pname, email, hash FROM people WHERE email = $1';
     const query = {
       text: select,
       values: [email]
     };
     const {rows} = await pool.query(query);
     if (rows.length == 0 || !bcrypt.compareSync(pwd, rows[0].hash)) return undefined;
-    else return rows[0].email;
+    else return rows[0].pname;
 }
 
 exports.selectMails = async (mailbox) => {

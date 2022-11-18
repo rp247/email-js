@@ -70,12 +70,12 @@ components:
     User:
       type: object
       properties:
-        email:
+        name:
           type: string
         accessToken:
           type: string
       required:
-        - email
+        - name
         - accessToken
 
     Credentials:

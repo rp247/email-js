@@ -54,7 +54,7 @@ function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
     fetch('http://localhost:3010/v0/login', {
-      method: 'POST',
+      method: 'post',
       body: JSON.stringify(user),
       headers: {
         'Content-Type': 'application/json',
