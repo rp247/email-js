@@ -1,4 +1,5 @@
 const {Pool} = require('pg');
+var bcrypt = require('bcrypt');
 
 const pool = new Pool({
   host: 'localhost',
@@ -8,15 +9,16 @@ const pool = new Pool({
   password: process.env.POSTGRES_PASSWORD,
 });
 
-exports.login = async (email, hash) => {
-    console.log("login database check email", email, ". hash: ", hash);
-    const select = 'SELECT hash FROM people WHERE email = $1';
+exports.login = async (email, pwd) => {
+    const select = 'SELECT pname, hash FROM people';
     const query = {
-      text: select,
-      values: [email],
+      text: select
     };
     const {rows} = await pool.query(query);
-    console.log("Rows ", rows[0]);
+    for (const row of rows) {
+        console.log("Rows ", row);
+        console.log("same: ", bcrypt.compareSync(row.pname, row.hash));
+    }
     return rows.length == 1 ? rows[0].email : undefined;
 }
 

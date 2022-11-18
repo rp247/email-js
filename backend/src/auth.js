@@ -6,7 +6,7 @@ const db = require('./db')
 exports.login = async (req, res) => {
     const { email, password } = req.body;
     console.log("Login: User: ", email, ". Pwd: ", password);
-    const user = await db.login(email, 'hash');
+    const user = await db.login(email, password);
     if (user) {
         console.log("user auth: ", user);
         res.status(200).json({name: user.email, "bruh": "bruh"});
