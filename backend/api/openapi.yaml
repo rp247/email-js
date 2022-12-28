@@ -1,16 +1,12 @@
-#
-# CSE186 Assignment 8 Backend
-#
-
 openapi: '3.0.3'
 
 info:
-  description: CSE186 Assignment 8 Backend
+  description: CSE186 Assignment 7
   version: 0.1.0
-  title: CSE186 Assignment 8 Backend
+  title: CSE186 Assignment 7
 
 servers:
-  - url: http://localhost:3010/v0
+  - url: http://localhost:3010
 
 paths:
   /login:
@@ -36,27 +32,149 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnexpectedError'
-    
-  /mail:
+  /v0/mail:
     get:
-      security:
-        - bearerAuth: []         
-      description: Returns all emails
+      description: Returns all EMail, (optional) a particular mailbox.
+      
+      parameters:
+        # /v0/mail?mailbox={mailbox}
+        - in: query
+          name: mailbox
+          description: Name of the mailbox
+          required: false
+          schema:
+            type: string
+
+        # /v0/mail?from={from}
+        - in: query
+          name: from
+          description: Search from (partial or full name or email)
+          required: false
+          schema:
+            type: string
+                  
       responses:
-        401:
-          description: Unauthorised
         200:
           description: Email Response
-        default:
-          description: Unexpected Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnexpectedError'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MailboxMail'
+        404:
+          description: Not Found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      description: Saves the receieved email in the request (and returns it).
+
+      requestBody:
+        description: Email to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMail'
+
+      responses:
+        200:
+          description: Email Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Email'
+                  - type: object
+                    properties:
+                      content:
+                        type: string
+        400:
+          description: Unexpected Properties
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v0/mail/{id}:
+    get:
+      description: Returns an email with a specific ID.
+      
+      parameters:
+        # /v0/mail/{id}
+        - in: path
+          name: id
+          description: UUID of an Email.
+          required: true
+          schema:
+            type: string
+      
+      responses:
+        200:
+          description: Email Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Email'
+                  - type: object
+                    properties:
+                      content:
+                        type: string
+
+        404:
+          description: Not Found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      description: Moves email identified by {id} into {mailbox}.
+      
+      parameters:
+        # /v0/mail/{id}
+        - in: path
+          name: id
+          description: UUID of an Email.
+          required: true
+          schema:
+            type: string
+        
+        # /v0/mail?mailbox={mailbox}
+        - in: query
+          name: mailbox
+          description: Name of the mailbox
+          required: true
+          schema:
+            type: string
+      
+      responses:
+        204:
+          description: PUT Success
+        404:
+          description: Not Found
+        409:
+          description: Cannot move to "Sent"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
-    UnexpectedError:
+    Error:
       required:
         - code
         - message
@@ -67,30 +185,84 @@ components:
         message:
           type: string
 
-    User:
+    MailboxMail:
       type: object
       properties:
         name:
           type: string
-        accessToken:
-          type: string
-      required:
-        - name
-        - accessToken
+        mail:
+          type: array
+          items:
+            $ref: '#/components/schemas/Email'
 
-    Credentials:
+    # for GET
+    Email:
       type: object
       properties:
-        email:
+        id:
           type: string
-        password:
+        from:
+          type: object
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+              format: email
+        to:
+          type: object
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+              format: email
+        subject:
+          type: string
+        sent:
+          type: string
+        received:
           type: string
       required:
-        - email
-        - password
+        - id
+        - from
+        - to
+        - subject
+        - sent
+        - received
 
-  securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
-      type: http
-      scheme: bearer
-      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+    # for POST
+    "NewMail": {
+      "type": "object",
+      "properties": {
+        "to": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          "required": [
+            "name",
+            "email",
+          ],
+          "additionalProperties": false
+        },
+        "subject": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject",
+        "content",
+        "to",
+      ],
+      "additionalProperties": false
+    }
