@@ -21,23 +21,94 @@ exports.login = async (email, pwd) => {
 }
 
 exports.selectMails = async (mailbox) => {
-    console.log("selectMails");
+  let select = 'SELECT mailbox, ' +
+  'ARRAY_AGG (mail::jsonb - \'content\' || ' +
+  'jsonb_build_object(\'id\', mail.id)) mail FROM mail';
+  if (mailbox) {
+    select += ` WHERE mailbox = $1`;
+  }
+  select += ' GROUP BY mailbox';
+  const query = {
+    text: select,
+    values: mailbox ? [`${mailbox}`] : [],
+  };
+  const {rows} = await pool.query(query);
+  const mails = [];
+  for (const row of rows) {
+    const vals = Object.values(row.mail);
+    mails.push({name: row.mailbox, mail: vals});
+  }
+  return mails;
 };
 
 exports.selectMailId = async (id) => {
-    console.log("selectmailid");
+  const select = 'SELECT (mail::jsonb || ' +
+  'jsonb_build_object(\'id\', mail.id)) mail ' +
+  'FROM mail WHERE id = $1';
+  const query = {
+    text: select,
+    values: [id],
+  };
+  const {rows} = await pool.query(query);
+  return rows.length == 1 ? rows[0].mail : undefined;
 };
 
 exports.insertMail = async (mail) => {
-    console.log("insertMail");
+  const select = 'WITH res AS ' +
+    '(INSERT INTO mail(mailbox, mail)' +
+    ' VALUES (\'sent\', \'' + JSON.stringify(mail) + '\')' +
+    ' RETURNING id, mail) ' +
+    'SELECT (mail::jsonb || jsonb_build_object(\'id\', id)) mail FROM res';
+  const query = {
+    text: select,
+  };
+  const {rows} = await pool.query(query);
+  return rows[0].mail;
 };
 
 exports.putMail = async (id, mbx) => {
-    console.log("fromMail");
+  let select = 'SELECT mailbox FROM mail WHERE id = $1';
+  let query = {
+    text: select,
+    values: [id],
+  };
+  const {rows} = await pool.query(query);
+  if (rows.length === 0) return 404;
+  const mailbox = rows[0].mailbox;
+  if (mailbox === mbx) return 204;
+  if (mbx === 'sent' && mailbox !== 'sent') return 409;
+  select = 'UPDATE mail SET mailbox = $1 WHERE id = $2';
+  query = {
+    text: select,
+    values: [mbx, id],
+  };
+  await pool.query(query);
+  return 204;
 };
 
 exports.fromMail = async (mailbox, val) => {
-    console.log("from mail");
+  let select = 'SELECT mailbox, ' +
+  'ARRAY_AGG (mail::jsonb - \'content\' || ' +
+  'jsonb_build_object(\'id\', mail.id)) mail FROM mail' +
+  ' WHERE';
+  if (mailbox) {
+    select += ` (mailbox = $2) AND`;
+  }
+  select += ' (mail->\'from\'->>\'name\' ~* $1' +
+  ' OR mail->\'from\'->>\'email\' = $1)' +
+  ' GROUP BY mailbox';
+  const query = {
+    text: select,
+    values: mailbox ? [val, `${mailbox}`] : [val],
+  };
+  const {rows} = await pool.query(query);
+  const mails = [];
+  for (const row of rows) {
+    const vals = Object.values(row.mail);
+    mails.push({name: row.mailbox, mail: vals});
+  }
+  return mails;
 };
+
 
 console.log(`Connected to database '${process.env.POSTGRES_DB}'`);
